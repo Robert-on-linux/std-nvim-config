@@ -48,10 +48,16 @@ return { -- Highlight, edit, and navigate code
         },
         incremental_selection = {
             enable = true,
-        },
-        indent = {
-            enable = true,
-            disable = { 'ruby' },
+            keymaps = {
+                init_selection = 'gnn',
+                node_incremental = 'grn',
+                scope_incremental = 'grc',
+                node_decremental = 'grm',
+            },
+            indent = {
+                enable = true,
+                --            disable = { 'ruby' },
+            },
         },
     },
 
@@ -61,4 +67,20 @@ return { -- Highlight, edit, and navigate code
     --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+    textobjects = {
+        select = {
+            enable = true,
+            lookahead = true, -- Automatische Vorauswahl
+            keymaps = {
+                ['af'] = '@function.outer', -- Ganze Funktion
+                ['if'] = '@function.inner', -- Innerer Teil der Funktion
+                ['ac'] = '@class.outer', -- Ganze Klasse
+                ['ic'] = '@class.inner', -- Innerer Teil der Klasse
+            },
+        },
+    },
+    refactor = {
+        highlight_definitions = { enable = true },
+        highlight_current_scope = { enable = false },
+    },
 }
