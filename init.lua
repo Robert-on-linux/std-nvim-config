@@ -12,21 +12,21 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
     end
 end
 
-vim.treesitter.query.add_predicate('has-ancestor', function(match, pattern, bufnr, predicate)
-    local node = match[predicate[2]]
-    if not node then
-        return false
-    end
-    local ancestor_type = predicate[3]
-    local parent = node:parent()
-    while parent do
-        if parent:type() == ancestor_type then
-            return true
-        end
-        parent = parent:parent()
-    end
-    return false
-end, true)
+--vim.treesitter.query.add_predicate('has-ancestor', function(match, pattern, bufnr, predicate)
+--    local node = match[predicate[2]]
+--    if not node then
+--        return false
+--    end
+--    local ancestor_type = predicate[3]
+--    local parent = node:parent()
+--    while parent do
+--        if parent:type() == ancestor_type then
+--            return true
+--        end
+--        parent = parent:parent()
+--    end
+--    return false
+-- end, true)
 
 vim.opt.rtp:prepend(lazypath)
 
