@@ -35,7 +35,10 @@ require('lazy').setup {
     require 'plugins.neotree',
 
     -- colortheme --------------------------------------------
-    require 'plugins.colortheme',
+    --    require 'plugins.colortheme',
+    require 'plugins.colortheme_onedark',
+    --    require 'plugins.colortheme_cobalt2',
+    --    require 'plugins.colortheme_nord',
 
     -- bufferline --------------------------------------------
     require 'plugins.bufferline',
