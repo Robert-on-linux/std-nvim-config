@@ -55,6 +55,12 @@ require('lazy').setup {
     -- lsp ---------------------------------------------------
     require 'plugins.lsp',
 
+    -- dap ---------------------------------------------------
+    require 'plugins.dap',
+
+    -- toggleterm --------------------------------------------
+    require 'plugins.toggleterm',
+
     -- autocompletion ----------------------------------------
     require 'plugins.autocompletion',
 

@@ -156,5 +156,61 @@ return {
                 end,
             },
         }
+
+        -- Konfiguration für clangd (C/C++ LSP)
+        local lspconfig = require 'lspconfig'
+        lspconfig.clangd.setup {
+            cmd = { 'clangd' },
+            filetypes = { 'c', 'cpp', 'objc', 'objcpp' },
+            root_dir = lspconfig.util.root_pattern('compile_commands.json', 'compile_flags.txt', '.git'),
+            capabilities = require('cmp_nvim_lsp').default_capabilities(),
+        }
+
+        -- Autovervollständigung mit nvim-cmp
+        local cmp = require 'cmp'
+        cmp.setup {
+            snippet = {
+                expand = function(args)
+                    require('luasnip').lsp_expand(args.body)
+                end,
+            },
+            mapping = cmp.mapping.preset.insert {
+                ['<C-n>'] = cmp.mapping.select_next_item(),
+                ['<C-p>'] = cmp.mapping.select_prev_item(),
+                ['<C-Space>'] = cmp.mapping.complete(),
+                ['<CR>'] = cmp.mapping.confirm { select = true },
+            },
+            sources = cmp.config.sources {
+                { name = 'nvim_lsp' },
+                { name = 'luasnip' },
+            },
+        }
+
+        -- Automatische Formatierung mit clang-format
+        vim.api.nvim_create_autocmd('BufWritePre', {
+            pattern = { '*.c', '*.cpp', '*.h' },
+            callback = function()
+                vim.lsp.buf.format { async = true }
+            end,
+        })
+
+        -- Dateisuche mit Telescope
+        require('telescope').setup {}
+        vim.keymap.set('n', '<leader>ff', require('telescope.builtin').find_files, { desc = '[F]ind [F]iles' })
+
+        -- Schlüsselbindungen für Debugging
+        vim.keymap.set('n', '<F5>', function()
+            require('dap').continue()
+        end, { desc = 'Start Debugging' })
+        vim.keymap.set('n', '<F10>', function()
+            require('dap').step_over()
+        end, { desc = 'Step Over' })
+        vim.keymap.set('n', '<F11>', function()
+            require('dap').step_into()
+        end, { desc = 'Step Into' })
+        vim.keymap.set('n', '<F12>', function()
+            require('dap').step_out()
+        end, { desc = 'Step Out' })
+        vim.keymap.set('n', '<leader>b', vim.cmd.ToggleTerm, { desc = 'Open Build Terminal' })
     end,
 }
