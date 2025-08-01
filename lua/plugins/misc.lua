@@ -38,7 +38,24 @@ return {
         -- High-performance color highlighter
         'norcalli/nvim-colorizer.lua',
         config = function()
-            require('colorizer').setup()
+            require('colorizer').setup {
+                filetypes = vim.iter({
+                    'css',
+                    'scss',
+                    'html',
+                    'lua',
+                    'javascript',
+                    'typescript',
+                    'json',
+                    'yaml',
+                    'toml',
+                    'markdown',
+                    'conf',
+                    'vim',
+                })
+                    :flatten()
+                    :totable(),
+            }
         end,
     },
 }
