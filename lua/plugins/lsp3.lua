@@ -6,8 +6,8 @@ return {
         { 'williamboman/mason.nvim', config = true }, -- Mason must load first
         'williamboman/mason-lspconfig.nvim',
         'WhoIsSethDaniel/mason-tool-installer.nvim',
-        { 'j-hui/fidget.nvim',       opts = {} }, -- For status updates
-        'hrsh7th/cmp-nvim-lsp',             -- Capabilities integration
+        { 'j-hui/fidget.nvim', opts = {} }, -- For status updates
+        'hrsh7th/cmp-nvim-lsp', -- Capabilities integration
     },
     config = function()
         -- Callback when an LSP attaches to a buffer
@@ -59,11 +59,10 @@ return {
         local capabilities = vim.lsp.protocol.make_client_capabilities()
         capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
 
-        -- Define LSP servers (nur hier, keine zweite clangd-Setup mehr später!)
-        local lspconfig = require 'lspconfig'
+        -- Define LSP servers
         local servers = {
-            ts_ls = {},
-            ruff = {},
+            ts_ls = {}, -- Example: TypeScript
+            ruff = {}, -- Example: Python linting
             pylsp = {
                 settings = {
                     pylsp = {
@@ -105,42 +104,66 @@ return {
                 },
             },
             clangd = {
-                -- Wichtig: C++20 + clang-tidy direkt beim Start
-                cmd = { 'clangd', '--std=c++23', '--clang-tidy' },
+                cmd = { 'clangd' },
                 filetypes = { 'c', 'cpp', 'objc', 'objcpp' },
-                root_dir = lspconfig.util.root_pattern('compile_commands.json', 'compile_flags.txt', '.git'),
-                -- keine fallbackFlags nötig, da wir --std explizit setzen
+                root_dir = require('lspconfig').util.root_pattern('compile_commands.json', 'compile_flags.txt', '.git'),
+                settings = {
+                    clangd = {
+                        fallbackFlags = { '-std=c++23' }, -- Beispiel für Compiler-Flags
+                    },
+                },
             },
         }
 
-        -- Mason: Tools installieren
+        -- Ensure LSP servers are installed
         require('mason').setup()
         require('mason-tool-installer').setup {
             ensure_installed = {
-                'clangd',
-                'lua-language-server',
-                'pyright',
-                'typescript-language-server',
-                'prettier',
-                'eslint_d',
-                'shellcheck',
-                'shfmt',
+                'clangd', -- LSP für C/C++
+                'lua-language-server', -- Lua LSP
+                'pyright', -- Python LSP
+                'typescript-language-server', -- Typescript/Javascript
+                'prettier', -- Formatter
+                'eslint_d', -- Linter
+                'shellcheck', -- Shell-Skript Linter
+                'shfmt', -- Shell-Skript Formatter
             },
-            auto_update = false,
-            run_on_start = true,
-        }
 
-        -- Mason-LSPConfig: Server einrichten
+            -- Automatische Installation beim Start (optional)
+            auto_update = false, -- Automatische Updates deaktivieren
+            run_on_start = true, -- Installation prüfen und fehlende Tools laden
+        }
         require('mason-lspconfig').setup {
-            ensure_installed = { 'clangd', 'lua_ls', 'pyright', 'ts_ls' },
+            -- Liste der zu installierenden LSP-Server
+            ensure_installed = {
+                'clangd', -- C/C++
+                'lua_ls', -- Lua
+                'pyright', -- Python
+                'ts_ls', -- TypeScript/JavaScript
+                -- 'tsserver',
+            },
+
+            -- Automatische Installation aktivieren
             automatic_installation = true,
+
+            -- Handler für zusätzliche Einstellungen
+
             handlers = {
                 function(server_name)
                     local server = servers[server_name] or {}
                     server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-                    lspconfig[server_name].setup(server)
+                    require('lspconfig')[server_name].setup(server)
                 end,
             },
+        }
+
+        -- Konfiguration für clangd (C/C++ LSP)
+        local lspconfig = require 'lspconfig'
+        lspconfig.clangd.setup {
+            cmd = { 'clangd' },
+            filetypes = { 'c', 'cpp', 'objc', 'objcpp' },
+            root_dir = lspconfig.util.root_pattern('compile_commands.json', 'compile_flags.txt', '.git'),
+            capabilities = require('cmp_nvim_lsp').default_capabilities(),
         }
 
         -- Autovervollständigung mit nvim-cmp
@@ -171,11 +194,11 @@ return {
             end,
         })
 
-        -- Telescope
+        -- Dateisuche mit Telescope
         require('telescope').setup {}
         vim.keymap.set('n', '<leader>ff', require('telescope.builtin').find_files, { desc = '[F]ind [F]iles' })
 
-        -- DAP Shortcuts
+        -- Schlüsselbindungen für Debugging
         vim.keymap.set('n', '<F5>', function()
             require('dap').continue()
         end, { desc = 'Start Debugging' })
